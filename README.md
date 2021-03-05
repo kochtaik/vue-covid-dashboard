@@ -1,1 +1,1 @@
-# vue-popluation-chart
+# vue-covid-dashboard
