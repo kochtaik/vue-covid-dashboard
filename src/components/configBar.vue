@@ -1,13 +1,14 @@
 <template>
   <nav>
     <div>
-      <select name="" id="">
-        <option value="">Новые случаи</option>
-        <option value="">Летальные исходы</option>
+      <select v-model="cases" name="cases" id="cases">
+        <option value="newCases">Новые случаи</option>
+        <option value="deaths">Летальные исходы</option>
       </select>
       <div class="search-area">
         <input
           v-model="searchStringValue"
+          @keypress.enter="selectCountry"
           type="text"
           placeholder="Enter a country name"
           />
@@ -17,16 +18,17 @@
           >
           <li
             v-for="(countryInfo, idx) in suggestions"
+            @click="selectCountry($event)"
             :key="idx"
             tabindex="0"
-          >{{ countryInfo.Country }}</li>
+          >{{ countryInfo.name }}</li>
         </ul>
       </div>
-      <select name="" id="">
-        <option value="">Всё время</option>
-        <option value="">1 неделя</option>
-        <option value="">2 недели</option>
-        <option value="">30 дней</option>
+      <select v-model="timing" name="Timing" id="timing">
+        <option value="allTime">Сегодня</option>
+        <option value="week1">1 неделя</option>
+        <option value="week2">2 недели</option>
+        <option value="month">30 дней</option>
       </select>
     </div>
   </nav>
@@ -36,35 +38,28 @@
 
 export default {
   name: 'configBar',
+  emits: ['search-input', 'country-select'],
+  props: ['suggestions', 'timeline'],
   data() {
     return {
-      countriesList: [],
-      suggestions: [],
+      cases: '',
       searchStringValue: '',
+      timing: '',
     };
   },
-  watch: {
-    searchStringValue(stringValue) {
-      if (stringValue.length > 0) {
-      const toMatch = new RegExp(stringValue, 'gi');
-      this.suggestions = this.countriesList
-        .filter(countryInfo => toMatch.test(countryInfo.Country))
-        .slice(0, 4);
-      } else this.suggestions = [];
+  methods: {
+    selectCountry(option) {
+      const selectedCountry = this.suggestions.find(country => country.name === option.target.textContent)
+        || this.suggestions[0];
+      this.$emit('country-select', selectedCountry);
+      console.log(this.timeline);
     }
   },
-  created() {
-    (async () => {
-      const url = 'https://api.covid19api.com/countries';
-      const requestOptions = {
-        method: 'GET',
-        redirect: 'follow'
-      };
-      const rawData = await fetch(url, requestOptions);
-      const handledData = await rawData.json();
-      this.countriesList = handledData;
-    })();
-  },
+  watch: {
+    searchStringValue() {
+      this.$emit('search-input', this.searchStringValue);
+    }
+  }
 }
 </script>
 
