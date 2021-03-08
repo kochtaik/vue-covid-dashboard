@@ -3,17 +3,23 @@
     @search-input="makeSuggestions"
     @country-select="setCountry"
     :suggestions="suggestions"
-    :timeline="countryTimeline"
     ></config-bar>
+  <covid-chart
+    :countryDataLoaded="countryDataLoaded"
+    :choosenCountry="choosenCountry"
+  ></covid-chart>
 </template>
 
 <script>
-import configBar from './components/configBar.vue'
+import configBar from './components/configBar.vue';
+import CovidChart from './components/CovidChart.vue';
+import { fetchData } from './api';
 
 export default {
   name: 'Covid dashboard',
   components: {
     configBar,
+    CovidChart,
   },
   data() {
     return {
@@ -21,9 +27,17 @@ export default {
       suggestions: [],
       countryTimeline: [],
       choosenCountry: null,
+      countryDataLoaded: false,
     };
   },
   methods: {
+    async formCountriesList() {
+      const countries = await fetchData();
+      this.countriesList = this.extractCountriesNames(countries.data);
+      const firstCountry = this.countriesList[0];
+      this.setCountry(firstCountry);
+      console.log('choosen country:', this.choosenCountry);
+    },
     makeSuggestions(inputValue) { 
       if (inputValue.length > 0) {
       const toMatch = new RegExp(`^${inputValue}`, 'gi');
@@ -47,31 +61,10 @@ export default {
       this.choosenCountry = countryName;
     }
   },
-  watch: {
-    choosenCountry() {
-      (async () => {
-        console.log('fetching fired!');
-        console.log(this.choosenCountry)
-        const { code } = this.choosenCountry;
-        const url = `http://corona-api.com/countries/${code}`;
-        console.log(url);
-        const response = await fetch(url);
-        const countryStats = await response.json(); 
-        this.countryTimeline = countryStats.data.timeline;
-        console.log('fetching ended:', this.countryTimeline);
-      })();
-    },
-  },
-  created() {
+  mounted() {
     // попытаться вынести работу с апи в отдельный модуль
-    (async () => {
-      const url = 'https://corona-api.com/countries/';
-
-      const rawData = await fetch(url, {mode: 'cors'});
-      const handledData = await rawData.json();
-      this.countriesList = this.extractCountriesNames(handledData.data);
-      this.choosenCountry = this.countriesList[0];
-    })();
+    // [x] сделать ОДНУ ФУНКЦИЮ на любые опции
+    this.formCountriesList();
   },
 }
 </script>

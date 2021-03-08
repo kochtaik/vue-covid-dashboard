@@ -39,7 +39,7 @@
 export default {
   name: 'configBar',
   emits: ['search-input', 'country-select'],
-  props: ['suggestions', 'timeline'],
+  props: ['suggestions'],
   data() {
     return {
       cases: '',
@@ -52,7 +52,6 @@ export default {
       const selectedCountry = this.suggestions.find(country => country.name === option.target.textContent)
         || this.suggestions[0];
       this.$emit('country-select', selectedCountry);
-      console.log(this.timeline);
     }
   },
   watch: {
