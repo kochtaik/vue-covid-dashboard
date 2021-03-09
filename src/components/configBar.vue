@@ -1,7 +1,7 @@
 <template>
   <nav>
     <div>
-      <select v-model="cases" name="cases" id="cases">
+      <select v-model="mode" id="cases">
         <option value="newCases">Новые случаи</option>
         <option value="deaths">Летальные исходы</option>
       </select>
@@ -24,11 +24,11 @@
           >{{ countryInfo.name }}</li>
         </ul>
       </div>
-      <select v-model="timing" name="Timing" id="timing">
-        <option value="allTime">Сегодня</option>
-        <option value="week1">1 неделя</option>
-        <option value="week2">2 недели</option>
-        <option value="month">30 дней</option>
+      <select v-model="interval" id="timing">
+        <option value="Infinity">All time</option>
+        <option value="7">1 week</option>
+        <option value="14">2 weeks</option>
+        <option value="30">30 days</option>
       </select>
     </div>
   </nav>
@@ -38,13 +38,18 @@
 
 export default {
   name: 'configBar',
-  emits: ['search-input', 'country-select'],
+  emits: [
+    'search-input',
+    'country-select',
+    'change-interval',
+    // 'change-mode'
+  ],
   props: ['suggestions'],
   data() {
     return {
-      cases: '',
+      mode: 'newCases',
+      interval: 'Infinity',
       searchStringValue: '',
-      timing: '',
     };
   },
   methods: {
@@ -52,12 +57,19 @@ export default {
       const selectedCountry = this.suggestions.find(country => country.name === option.target.textContent)
         || this.suggestions[0];
       this.$emit('country-select', selectedCountry);
+      this.searchStringValue = '';
     }
   },
   watch: {
     searchStringValue() {
       this.$emit('search-input', this.searchStringValue);
-    }
+    },
+    interval() {
+      this.$emit('change-interval', this.interval);
+    },
+    // mode() {
+    //   this.$emit('change-mode', this.mode);
+    // }
   }
 }
 </script>
@@ -84,6 +96,8 @@ export default {
     list-style: none;
     position: absolute;
     top: 100%;
+    z-index: 1000;
+    background: rgb(255, 255, 255);
     box-shadow:
     0 2.8px 2.2px rgba(0, 0, 0, 0.034),
     0 6.7px 5.3px rgba(0, 0, 0, 0.048),

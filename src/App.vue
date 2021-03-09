@@ -2,11 +2,12 @@
   <config-bar
     @search-input="makeSuggestions"
     @country-select="setCountry"
+    @change-interval="setTimespan"
     :suggestions="suggestions"
     ></config-bar>
   <covid-chart
-    :countryDataLoaded="countryDataLoaded"
     :choosenCountry="choosenCountry"
+    :timespan="timespan"
   ></covid-chart>
 </template>
 
@@ -27,7 +28,7 @@ export default {
       suggestions: [],
       countryTimeline: [],
       choosenCountry: null,
-      countryDataLoaded: false,
+      timespan: Infinity,
     };
   },
   methods: {
@@ -36,7 +37,6 @@ export default {
       this.countriesList = this.extractCountriesNames(countries.data);
       const firstCountry = this.countriesList[0];
       this.setCountry(firstCountry);
-      console.log('choosen country:', this.choosenCountry);
     },
     makeSuggestions(inputValue) { 
       if (inputValue.length > 0) {
@@ -59,11 +59,13 @@ export default {
     },
     setCountry(countryName) {
       this.choosenCountry = countryName;
+      this.suggestions = [];
+    },
+    setTimespan(interval) {
+      this.timespan = Number(interval);
     }
   },
   mounted() {
-    // попытаться вынести работу с апи в отдельный модуль
-    // [x] сделать ОДНУ ФУНКЦИЮ на любые опции
     this.formCountriesList();
   },
 }
