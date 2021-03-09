@@ -36,20 +36,27 @@ export default {
     // Fires only when country has been changed
     async prepareData(countryCode) {
       const countryData = await fetchData(countryCode);
+      console.log(countryData);
       this.constantCountryTimeline = countryData.data.timeline;
       this.drawChart()
     },
 
     agregateData(param) {
-      return this.currentCountryTimeline.reduceRight((acc, val) => {
-        acc.push(val[param]);
-        return acc;
+      return this.currentCountryTimeline.reduceRight((dataset, item) => {
+        let handledValue = item[param];
+        if (param === 'date') {
+          const options = { year: 'numeric', month: 'short', day: 'numeric'};
+          handledValue = new Date(handledValue).toLocaleString('us-US', options);
+        }
+        dataset.push(handledValue);
+        return dataset;
       }, []);
     },
 
     drawChart() {
       const dates = this.agregateData('date');
       const newConfirmedCases = this.agregateData('new_confirmed');
+      const newDeaths = this.agregateData('new_deaths');
       const ctx = document.getElementById('covidChart');
 
       if (this.chartInstance !== null) this.chartInstance.destroy();
@@ -57,15 +64,22 @@ export default {
         type: 'bar',
         data: {
           labels: dates,
-          datasets: [
-            {
-              label: 'New Cases',
-              backgroundColor: '#aecbfa',
-              borderColor: '#aecbfa',
-              data: newConfirmedCases,
-              fill: false,
-            }
-          ]
+          datasets: [{
+            type: 'line',
+            label: 'New deaths',
+            backgroundColor: '#c73431',
+            borderColor: '#c5221f',
+            borderWidth: 1,
+            pointRadius: 1,
+            data: newDeaths,
+          },
+          {
+            label: 'New cases',
+            backgroundColor: '#aecbfa',
+            borderColor: '#aecbfa',
+            data: newConfirmedCases,
+            fill: false,
+          }]
         },
         options: {
           responsive: true,
