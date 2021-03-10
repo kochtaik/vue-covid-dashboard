@@ -86,7 +86,7 @@ export default {
           datasets: [{
             type: 'line',
             label: 'New deaths',
-            backgroundColor: '#c73431',
+            backgroundColor: '#d95d5a',
             borderColor: '#c5221f',
             borderWidth: 1,
             pointRadius: 1,
@@ -105,14 +105,33 @@ export default {
           title: {
             display: true,
             text: this.choosenCountry.name,
+            fontSize: 20,
+          },
+          hover: {
+            mode: 'nearest',
+            intersect: false
           },
           scales: {
             yAxes: [{
+              display: true,
               ticks: {
                 beginAtZero: true
               }
+            }],
+            xAxes: [{
+              display: true,
+              ticks: {
+                callback: function(dataLabel, idx) {
+                  if (idx === dates.length - 1) return dataLabel;
+                  return idx % 10 === 0 ? dataLabel : '';
+                }
+              }
             }]
-          }
+          },
+          tooltips: {
+            mode: 'index',
+            intersect: false
+          },
         }
       };
       this.chartInstance = new Chart(ctx, config);
