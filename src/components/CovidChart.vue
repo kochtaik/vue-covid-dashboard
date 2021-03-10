@@ -1,23 +1,34 @@
 <template>
-  <div class="container">
+  <section class="chart-container">
     <canvas
       id="covidChart"
       width="400"
       height="400"
       aria-label="Dynamic of covid-19" role="img"
     ></canvas>
-  </div>
+  </section>
+  <general-stats
+    v-if="isChartDrawn"
+    :countryName="choosenCountry"
+    :todayData="todayData"
+  ></general-stats>
 </template>
 <script>
+import GeneralStats from './GeneralStats.vue';
+
 import Chart from 'chart.js';
 import { fetchData } from '../api';
-
 export default {
   name: 'CovidChart',
+  components: {
+    GeneralStats,
+  },
   data() {
     return {
       constantCountryTimeline: [],
       chartInstance: null,
+      todayData: null,
+      isChartDrawn: false,
     };
   },
   props: {
@@ -36,8 +47,15 @@ export default {
     // Fires only when country has been changed
     async prepareData(countryCode) {
       const countryData = await fetchData(countryCode);
-      console.log(countryData);
-      this.constantCountryTimeline = countryData.data.timeline;
+      const { data } = countryData;
+      console.log(data);
+      // if (data.timeline.length === 0) {
+      //   // this.isChartDrawn = false;
+      //   // this.chartInstance.destroy();
+      //   return;
+      // }
+      this.constantCountryTimeline = data.timeline;
+      this.todayData = data.timeline[0];
       this.drawChart()
     },
 
@@ -59,6 +77,7 @@ export default {
       const newDeaths = this.agregateData('new_deaths');
       const ctx = document.getElementById('covidChart');
 
+      this.isChartDrawn = false;
       if (this.chartInstance !== null) this.chartInstance.destroy();
       const config = {
         type: 'bar',
@@ -97,6 +116,7 @@ export default {
         }
       };
       this.chartInstance = new Chart(ctx, config);
+      this.isChartDrawn = true;
     },
   },
   computed: {
@@ -118,7 +138,7 @@ export default {
 </script>
 
 <style scoped>
-  .container {
+  .chart-container {
     width: 48%;
     height: 45%;
     position: relative;

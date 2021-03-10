@@ -5,10 +5,12 @@
     @change-interval="setTimespan"
     :suggestions="suggestions"
     ></config-bar>
-  <covid-chart
-    :choosenCountry="choosenCountry"
-    :timespan="timespan"
-  ></covid-chart>
+  <div class="stats-container">
+    <covid-chart
+      :choosenCountry="choosenCountry"
+      :timespan="timespan"
+    ></covid-chart>
+  </div>
 </template>
 
 <script>
@@ -76,5 +78,13 @@ html, select, input {
   font-size: 20px;
   font-family: 'Roboto', sans-serif;
   font-weight: 300;
+}
+
+.stats-container {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-around;
+  flex-wrap: wrap;
 }
 </style>

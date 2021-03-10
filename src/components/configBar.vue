@@ -1,10 +1,6 @@
 <template>
   <nav>
     <div>
-      <select v-model="mode" id="cases">
-        <option value="newCases">Новые случаи</option>
-        <option value="deaths">Летальные исходы</option>
-      </select>
       <div class="search-area">
         <input
           v-model="searchStringValue"
@@ -42,12 +38,10 @@ export default {
     'search-input',
     'country-select',
     'change-interval',
-    // 'change-mode'
   ],
   props: ['suggestions'],
   data() {
     return {
-      mode: 'newCases',
       interval: 'Infinity',
       searchStringValue: '',
     };
@@ -67,9 +61,6 @@ export default {
     interval() {
       this.$emit('change-interval', this.interval);
     },
-    // mode() {
-    //   this.$emit('change-mode', this.mode);
-    // }
   }
 }
 </script>
