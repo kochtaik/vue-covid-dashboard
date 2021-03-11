@@ -9,8 +9,7 @@
   </section>
   <general-stats
     v-if="isChartDrawn"
-    :countryName="choosenCountry"
-    :todayData="todayData"
+    :localitiesDatasets="localitiesDatasets"
   ></general-stats>
 </template>
 <script>
@@ -26,11 +25,12 @@ export default {
   data() {
     return {
       constantCountryTimeline: [],
+      localitiesDatasets: [],
       chartInstance: null,
-      todayData: null,
       isChartDrawn: false,
     };
   },
+
   props: {
     choosenCountry: {
       type: Object,
@@ -42,21 +42,31 @@ export default {
     }
   },
   methods: {
-    // Function that fetches data by country code
-    // and places it into appropriate variables.
-    // Fires only when country has been changed
-    async prepareData(countryCode) {
-      const countryData = await fetchData(countryCode);
-      const { data } = countryData;
-      console.log(data);
-      // if (data.timeline.length === 0) {
-      //   // this.isChartDrawn = false;
-      //   // this.chartInstance.destroy();
-      //   return;
-      // }
-      this.constantCountryTimeline = data.timeline;
-      this.todayData = data.timeline[0];
-      this.drawChart()
+    async prepareData(countryCode = '') {
+      const localityData = (countryCode === '') ? await fetchData('', '/timeline')
+        : await fetchData(countryCode);
+
+      const { data } = localityData;
+      let latestData;
+
+      if (!data.name) {
+        latestData = data[0]; // попытаться вынести в отедльную ф-ю
+        latestData.name = 'Global'; // попытаться вынести в отедльную ф-ю
+      } else {
+        latestData = data.timeline[0]; // попытаться вынести в отедльную ф-ю
+        latestData.name = this.choosenCountry.name; // попытаться вынести в отедльную ф-ю
+        this.constantCountryTimeline = data.timeline;
+        this.drawChart()
+      }
+      this.renewLocalitiesDatasets(latestData);
+    },
+
+    renewLocalitiesDatasets(dataset) {
+      if (this.localitiesDatasets.length === 2) {
+        this.localitiesDatasets.pop();
+      }
+      this.localitiesDatasets.push(dataset);
+      console.log(this.localitiesDatasets);
     },
 
     agregateData(param) {
@@ -153,6 +163,9 @@ export default {
       this.drawChart();
     },
   },
+  mounted() {
+    this.prepareData();
+  }
 }
 </script>
 

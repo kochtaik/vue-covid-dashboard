@@ -20,10 +20,12 @@ import { fetchData } from './api';
 
 export default {
   name: 'Covid dashboard',
+
   components: {
     configBar,
     CovidChart,
   },
+
   data() {
     return {
       countriesList: [],
@@ -33,6 +35,7 @@ export default {
       timespan: Infinity,
     };
   },
+
   methods: {
     async formCountriesList() {
       const countries = await fetchData();
@@ -40,6 +43,7 @@ export default {
       const firstCountry = this.countriesList[0];
       this.setCountry(firstCountry);
     },
+
     makeSuggestions(inputValue) { 
       if (inputValue.length > 0) {
       const toMatch = new RegExp(`^${inputValue}`, 'gi');
@@ -49,6 +53,7 @@ export default {
         .slice(0, 4);
       } else this.suggestions = [];
     },
+
     extractCountriesNames(countriesInfo) {
       return countriesInfo.reduce((countriesNames, country) => {
         const countryNameInfo = {
@@ -59,14 +64,18 @@ export default {
         return countriesNames;
       }, []);
     },
+
     setCountry(countryName) {
       this.choosenCountry = countryName;
       this.suggestions = [];
     },
+
     setTimespan(interval) {
       this.timespan = Number(interval);
     }
+
   },
+
   mounted() {
     this.formCountriesList();
   },
